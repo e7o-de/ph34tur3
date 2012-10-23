@@ -1,7 +1,7 @@
 <?php
 namespace Example;
 
-class C extends A, B //implements D
+class C extends A, B implements D
 {
 	/*public function getA()
 	{

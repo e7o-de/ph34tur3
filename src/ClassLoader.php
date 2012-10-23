@@ -56,7 +56,8 @@ abstract class ClassLoader
 			$posClass = strpos($code, ' class');
 		}
 		if ($posClass === false) {
-			return null;
+			// Don't modify (interfaces etc.)
+			return $code;
 		}
 		
 		$posNamespace = strpos($code, 'namespace ');
