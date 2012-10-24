@@ -9,3 +9,7 @@ echo $c->getB();
 
 $c->aFunction = function() { echo 'Hello World!'; };
 $c->aFunction();
+
+$c->giveMeIntegers(4);
+echo '... and now an error:';
+$c->giveMeIntegers('abc');
