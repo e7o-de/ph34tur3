@@ -18,7 +18,7 @@ class C extends A, B implements D
 		echo '[__static called]';
 	}
 	
-	public function giveMeIntegers(integer $a)
+	public function giveMeIntegers(int $a)
 	{
 		echo 'Yeah!';
 	}

@@ -14,6 +14,9 @@ class Error
 				if (preg_match($regexp, $errstr, $match)) {
 					$given = end(explode('\\', $match['given']));
 					$hint = end(explode('\\', $match['hint']));
+					if ($hint == 'int') {
+						$hint = 'integer';
+					}
 					if ($hint == $given) {
 						return true;
 					}
