@@ -4,10 +4,12 @@ namespace Ph34tur3;
 abstract class ClassLoader
 {
 	static $classCache;
+	static $parseRegexFunctions;
 	
 	static public function __static()
 	{
 		self::$classCache = array();
+		self::$parseRegexFunctions = '/function(&nbsp;|\w)+<\/span><span style="color: ' . ini_get('highlight.default') . '">([a-z0-9_]+)/is';
 	}
 	
 	static public function loadClass($class)
@@ -73,7 +75,7 @@ abstract class ClassLoader
 		
 		$posClassHeadEnd = strpos($code, '{', $posClass + 1);
 		
-		$additionalBody = '';
+		$additionalBody = array();
 		
 		$oldHead = substr($code, $posClass, $posClassHeadEnd - $posClass);
 		
@@ -111,12 +113,13 @@ abstract class ClassLoader
 					if ($extend[0] != '\\') {
 						$extend = $namespace . $extend;
 					}
-					$extend = self::getClassSource($extend);
+					$extendCode = self::getClassSource($extend);
 					// ToDo: use/namespace etc.
 					// It's a workaround for now ;)
-					$extend = substr($extend, strpos($extend, '{') + 1);
-					$extend = substr($extend, 0, strrpos($extend, '}'));
-					$additionalBody .= $extend;
+					$extendCode = substr($extendCode, strpos($extendCode, '{') + 1);
+					$extendCode = substr($extendCode, 0, strrpos($extendCode, '}'));
+					$extend = str_replace('\\', '__', $extend);
+					$additionalBody[$extend] = $extendCode;
 				}
 				$extends = '\Ph34tur3\Object';
 			}
@@ -129,7 +132,36 @@ abstract class ClassLoader
 			$newHead .= ' implements ' . $implements;
 		}
 		
-		$code = substr($code, 0, $posClass) . $newHead . '{' . $additionalBody . substr($code, $posClassHeadEnd + 1);
+		$originalCode = substr($code, $posClassHeadEnd + 1);
+		
+		$allFunctionsParents = array();
+		foreach ($additionalBody as $body) {
+			$allFunctionsParents = array_merge(
+				self::getFunctions($body),
+				$allFunctionsParents
+			);
+		}
+		$allFunctionsParents = array_unique($allFunctionsParents);
+		$allFunctionsSelf = self::getFunctions($originalCode);
+		
+		foreach ($allFunctionsSelf as $func) {
+			if (in_array($func, $allFunctionsParents)) {
+				foreach ($additionalBody as $extend => &$body) {
+					$body = preg_replace('/function\s+' . $func . '/i', 'function ' . $extend . '__' . $func, $body);
+				}
+				unset($body);
+			}
+		}
+		
+		$code = substr($code, 0, $posClass) . $newHead . '{' . implode("\n", $additionalBody) . $originalCode;
 		return $code;
+	}
+	
+	private function getFunctions($classCode)
+	{
+		if (strlen($classCode) == 0) return array();
+		$code = highlight_string('<?php class _tmp {' . $classCode, true);
+		preg_match_all(self::$parseRegexFunctions, $code, $functions);
+		return $functions[2];
 	}
 } ClassLoader::__static();

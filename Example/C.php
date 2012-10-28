@@ -3,7 +3,7 @@ namespace Example;
 
 class C extends A, B implements D
 {
-	/*public function getA()
+	public function getA()
 	{
 		return 'I\'m not A ;)';
 	}
@@ -11,7 +11,7 @@ class C extends A, B implements D
 	public function getB()
 	{
 		return 'I\'m not B ;)';
-	}*/
+	}
 	
 	public static function __static()
 	{
