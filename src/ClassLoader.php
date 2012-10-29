@@ -76,6 +76,7 @@ abstract class ClassLoader
 		$posClassHeadEnd = strpos($code, '{', $posClass + 1);
 		
 		$additionalBody = array();
+		$instanceOfInfo = array();
 		
 		$oldHead = substr($code, $posClass, $posClassHeadEnd - $posClass);
 		
@@ -98,6 +99,7 @@ abstract class ClassLoader
 		if ($posImplements !== false) {
 			$implements = substr($oldHead, $posImplements + 11);
 			$oldHead = substr($oldHead, 0, $posImplements);
+			$instanceOfInfo += explode(',', $implements);
 		} else {
 			$implements = null;
 		}
@@ -118,6 +120,7 @@ abstract class ClassLoader
 					// It's a workaround for now ;)
 					$extendCode = substr($extendCode, strpos($extendCode, '{') + 1);
 					$extendCode = substr($extendCode, 0, strrpos($extendCode, '}'));
+					$instanceOfInfo[] = $extend;
 					$extend = str_replace('\\', '__', $extend);
 					$additionalBody[$extend] = $extendCode;
 				}
@@ -127,11 +130,14 @@ abstract class ClassLoader
 			$extends = '\Ph34tur3\Object';
 		}
 		
+		$fqcn = $namespace . trim(substr($oldHead, strpos($oldHead, 'class') + 5));
+		
 		$newHead = $oldHead . ' extends ' . $extends;
 		if ($implements != null) {
 			$newHead .= ' implements ' . $implements;
 		}
 		
+		\Ph34tur3\Object::$__instanceOfInfo[$fqcn] = $instanceOfInfo;
 		$originalCode = substr($code, $posClassHeadEnd + 1);
 		
 		$allFunctionsParents = array();
@@ -154,6 +160,7 @@ abstract class ClassLoader
 		}
 		
 		$code = substr($code, 0, $posClass) . $newHead . '{' . implode("\n", $additionalBody) . $originalCode;
+		$code = preg_replace('/(\$\w+)\s+instanceof\s+(\w+)/is', '\Ph34tur3\Object::__isInstanceOf($1, \'$2\')', $code);
 		return $code;
 	}
 	

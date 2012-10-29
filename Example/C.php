@@ -22,4 +22,14 @@ class C extends A, B implements D
 	{
 		echo 'Yeah!';
 	}
+	
+	public function checkParents()
+	{
+		$ct = 0;
+		if ($this instanceof A) $ct++;
+		if ($this instanceof B) $ct++;
+		if ($this instanceof C) $ct++;
+		if ($this instanceof D) $ct++;
+		echo $ct;
+	}
 }
