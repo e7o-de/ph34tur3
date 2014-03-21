@@ -164,7 +164,7 @@ abstract class ClassLoader
 		return $code;
 	}
 	
-	private function getFunctions($classCode)
+	static private function getFunctions($classCode)
 	{
 		if (strlen($classCode) == 0) return array();
 		$code = highlight_string('<?php class _tmp {' . $classCode, true);

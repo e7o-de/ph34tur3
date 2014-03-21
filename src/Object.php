@@ -16,8 +16,8 @@ class Object
 	
 	protected function __isInstanceOf($type1, $type2)
 	{
-		$type1 = end(explode('\\', get_class($type1)));
-		$type2 = end(explode('\\', $type2));
+		$type1 = @end(explode('\\', get_class($type1)));
+		$type2 = @end(explode('\\', $type2));
 		return $type1 == $type2;
 	}
 }

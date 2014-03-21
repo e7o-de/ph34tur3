@@ -12,8 +12,8 @@ class Error
 				// http://www.php.net/manual/en/language.oop5.typehinting.php
 				$regexp = '/Argument (\d)+ passed to (.+) must be an instance of (?<hint>.+), (?<given>.+) given/i';
 				if (preg_match($regexp, $errstr, $match)) {
-					$given = end(explode('\\', $match['given']));
-					$hint = end(explode('\\', $match['hint']));
+					$given = @end(explode('\\', $match['given']));
+					$hint = @end(explode('\\', $match['hint']));
 					if ($hint == 'int') {
 						$hint = 'integer';
 					}
